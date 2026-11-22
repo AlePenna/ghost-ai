@@ -36,7 +36,7 @@ export function AppDialog({
 }: AppDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-3xl border border-border bg-popover text-popover-foreground backdrop-blur-md">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl border border-border bg-popover text-popover-foreground backdrop-blur-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description ? (
