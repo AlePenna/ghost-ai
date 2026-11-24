@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- 04-project-dialogs: editor home and project dialogs (mock data)
+- 05-prisma: Prisma schema and data layer
 
 ## Current Goal
 
-- Implement `context/feature-specs/04-project-dialogs.md`. Done; awaiting manual verification.
+- Implement `context/feature-specs/05-prisma.md`. Done; migration applied, build passes.
 
 ## Completed
 
@@ -23,6 +23,8 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - 04-project-dialogs follow-ups: brand-teal (`bg-brand`) default and ghost buttons app-wide; new `dark` button variant for Cancel (black, teal on hover; Create/Rename turn black while Cancel is hovered); confirm button left, Cancel right; white dialog titles and input text; teal focus border/glow on inputs. Unicode-only names allowed: submit gate uses trimmed name, `toSlug()` falls back to `project`, preview notes the default, whitespace-only names show a validation message. `ClerkProvider` moved inside `<body>` (Cache Components compatibility). Build passes.
 
+- 05-prisma: `prisma/models/project.prisma` (`Project`, `ProjectCollaborator`, `ProjectStatus` enum; indexes and cascade per spec); `lib/prisma.ts` cached singleton (Accelerate when `DATABASE_URL` starts with `prisma+postgres://`, else `@prisma/adapter-pg`; cached on `globalThis` outside production); `init` migration applied; client generated to `app/generated/prisma`. Added `@prisma/extension-accelerate` (not preinstalled). Build + tsc pass.
+
 ## In Progress
 
 - None.
@@ -36,6 +38,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Slug uniqueness: fallback slug `project` (Unicode-only names) will collide once persistence exists; backend needs a suffix/ID strategy.
 
 - Sign-in/up env vars were absent from `.env.local`; added Clerk-standard `NEXT_PUBLIC_CLERK_SIGN_IN_URL`/`SIGN_UP_URL` (+ fallback redirect URLs to `/editor`). Confirm Clerk dashboard matches.
+
+- Installed `prisma`/`@prisma/client` are 6.19.3 while `@prisma/adapter-pg` is 7.10.1; works today, but align versions. Accelerate branch uses the v6 API (`datasourceUrl` + `withAccelerate()`), which differs from v7 (`accelerateUrl`).
 
 ## Architecture Decisions
 
