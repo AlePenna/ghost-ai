@@ -22,13 +22,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <ClerkProvider appearance={clerkAppearance}>
-      <html
-        lang="en"
-        className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
-      >
-        <body className="min-h-full flex flex-col">{children}</body>
-      </html>
-    </ClerkProvider>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">
+        <ClerkProvider appearance={clerkAppearance}>{children}</ClerkProvider>
+      </body>
+    </html>
   );
 }

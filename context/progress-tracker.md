@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- 03-auth: Clerk authentication (provider, auth pages, proxy, redirects, UserButton)
+- 04-project-dialogs: editor home and project dialogs (mock data)
 
 ## Current Goal
 
-- Implement `context/feature-specs/03-auth.md`. Done; awaiting manual sign-in/sign-up verification.
+- Implement `context/feature-specs/04-project-dialogs.md`. Done; awaiting manual verification.
 
 ## Completed
 
@@ -18,6 +18,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - 03-auth: `ClerkProvider` (dark theme + CSS-variable appearance in `lib/clerk-appearance.ts`) in root layout; `/sign-in` and `/sign-up` pages with two-panel `AuthShell`; `proxy.ts` protects all but sign-in/up paths (read from env vars); `/` redirects to `/editor` or `/sign-in`; `UserButton` in navbar; minimal `/editor` route mounts navbar + sidebar. `@clerk/ui` installed. Build, tsc, eslint pass.
 
 - 03-auth UI pass: 50/50 auth layout (left `bg-surface` panel with logo, headline, 3 feature rows, footer; right `bg-base`). Added ui-context tokens (`bg-base`, `bg-surface`, `text-copy-*`, `text-brand`, etc.) to globals.css; Clerk appearance now uses them and Geist Sans.
+
+- 04-project-dialogs: `EditorHome` (heading, description, New Project), `ProjectDialogs` (create w/ live slug preview, rename w/ autofocus + Enter submit, delete w/ destructive confirm), `hooks/use-project-dialogs.ts` (dialog/form/loading state, mock list in memory), `lib/projects.ts` (mock data + `slugify`). Sidebar lists owned/shared projects; rename/delete shown only for owned; mobile backdrop scrim closes sidebar. tsc + eslint pass.
 
 ## In Progress
 

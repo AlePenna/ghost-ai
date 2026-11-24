@@ -45,7 +45,7 @@ export function AppDialog({
         </DialogHeader>
         {children}
         {footer ? (
-          <DialogFooter className="rounded-b-3xl border-border">
+          <DialogFooter className="rounded-b-3xl border-border has-[[data-cancel]:hover]:[&_[data-confirm]]:bg-black has-[[data-cancel]:hover]:[&_[data-confirm]]:text-white">
             {footer}
           </DialogFooter>
         ) : null}
