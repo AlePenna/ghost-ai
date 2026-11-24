@@ -21,6 +21,8 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - 04-project-dialogs: `EditorHome` (heading, description, New Project), `ProjectDialogs` (create w/ live slug preview, rename w/ autofocus + Enter submit, delete w/ destructive confirm), `hooks/use-project-dialogs.ts` (dialog/form/loading state, mock list in memory), `lib/projects.ts` (mock data + `slugify`). Sidebar lists owned/shared projects; rename/delete shown only for owned; mobile backdrop scrim closes sidebar. tsc + eslint pass.
 
+- 04-project-dialogs follow-ups: brand-teal (`bg-brand`) default and ghost buttons app-wide; new `dark` button variant for Cancel (black, teal on hover; Create/Rename turn black while Cancel is hovered); confirm button left, Cancel right; white dialog titles and input text; teal focus border/glow on inputs. Unicode-only names allowed: submit gate uses trimmed name, `toSlug()` falls back to `project`, preview notes the default, whitespace-only names show a validation message. `ClerkProvider` moved inside `<body>` (Cache Components compatibility). Build passes.
+
 ## In Progress
 
 - None.
@@ -30,6 +32,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Editor canvas and projects (next feature spec).
 
 ## Open Questions
+
+- Slug uniqueness: fallback slug `project` (Unicode-only names) will collide once persistence exists; backend needs a suffix/ID strategy.
 
 - Sign-in/up env vars were absent from `.env.local`; added Clerk-standard `NEXT_PUBLIC_CLERK_SIGN_IN_URL`/`SIGN_UP_URL` (+ fallback redirect URLs to `/editor`). Confirm Clerk dashboard matches.
 
