@@ -36,6 +36,16 @@ export function ShareDialog({ open, onOpenChange, projectId }: ShareDialogProps)
   const [isBusy, setIsBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [prevOpen, setPrevOpen] = useState(open);
+
+  // Reset request state on every open, however the dialog was opened.
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) {
+      setIsLoading(true);
+      setError(null);
+    }
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -111,20 +121,12 @@ export function ShareDialog({ open, onOpenChange, projectId }: ShareDialogProps)
     }
   }
 
-  function handleOpenChange(next: boolean) {
-    if (next) {
-      setIsLoading(true);
-      setError(null);
-    }
-    onOpenChange(next);
-  }
-
   const isOwner = role === "owner";
 
   return (
     <AppDialog
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={onOpenChange}
       title="Share project"
       description={
         role === "collaborator"

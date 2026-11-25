@@ -5,6 +5,7 @@ import { PanelLeftClose, PanelLeftOpen, Share2, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { brandButton, brandGhostButton } from "@/components/editor/editor-styles";
+import { cn } from "@/lib/utils";
 
 interface EditorNavbarProps {
   isSidebarOpen: boolean;
@@ -58,7 +59,7 @@ export function EditorNavbar({
             </Button>
             <Button
               size="sm"
-              className={brandButton}
+              className={cn("hidden md:inline-flex", brandButton)}
               onClick={onToggleAiSidebar}
               aria-label={
                 isAiSidebarOpen ? "Close AI sidebar" : "Open AI sidebar"

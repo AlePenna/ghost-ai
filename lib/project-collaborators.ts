@@ -11,6 +11,8 @@ export interface Collaborator {
   imageUrl: string | null;
 }
 
+const CLERK_PAGE_SIZE = 100;
+
 export type ProjectRole = "owner" | "collaborator";
 
 export type AccessResult =
@@ -75,11 +77,19 @@ export async function listCollaborators(
   const profiles = new Map<string, { name: string | null; imageUrl: string }>();
   try {
     const client = await clerkClient();
-    const { data: users } = await client.users.getUserList({
-      emailAddress: rows.map((r) => r.email),
-      limit: 100,
-    });
-    for (const user of users) {
+    // Chunk to the page size: each chunk returns at most one user per email,
+    // so no page is truncated, and query strings stay short.
+    const emails = rows.map((r) => r.email);
+    const chunks = Array.from(
+      { length: Math.ceil(emails.length / CLERK_PAGE_SIZE) },
+      (_, i) => emails.slice(i * CLERK_PAGE_SIZE, (i + 1) * CLERK_PAGE_SIZE),
+    );
+    const results = await Promise.all(
+      chunks.map((emailAddress) =>
+        client.users.getUserList({ emailAddress, limit: CLERK_PAGE_SIZE }),
+      ),
+    );
+    for (const user of results.flatMap((r) => r.data)) {
       const name =
         [user.firstName, user.lastName].filter(Boolean).join(" ") || null;
       for (const address of user.emailAddresses) {
