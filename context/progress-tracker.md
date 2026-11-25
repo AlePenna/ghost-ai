@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- 07-wire-editor-home: editor home wired to project APIs
+- 09-share-dialog: Share dialog in the workspace
 
 ## Current Goal
 
-- Implement `context/feature-specs/07-wire-editor-home.md`. Done; build passes.
+- Implement `context/feature-specs/09-share-dialog.md`. Done; build, tsc, eslint pass.
 
 ## Completed
 
@@ -29,13 +29,17 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - 07-wire-editor-home: `/editor` is a server component; `lib/project-data.ts` (`getProjectsForCurrentUser`: owned by Clerk ID, shared via collaborator email) feeds `EditorShell` (client) inside `<Suspense>`. `hooks/use-project-actions.ts` replaces the mock hook: create (short suffix + slug = room ID = project ID, `POST /api/projects`, push `/editor/[id]`), rename (`PATCH`, refresh), delete (`DELETE`, redirect to `/editor` if active workspace else refresh); API errors shown in dialogs. Create dialog previews Room ID. `POST /api/projects` now accepts an optional `id` (validated, 409 on duplicate) so project ID matches the room ID. Mock data removed from `lib/projects.ts`; `Project.slug` dropped. Build passes. Added placeholder `/editor/[projectId]` (owner/collaborator access check via `getAccessibleProject`, else 404) so create navigation lands on a real route; `EditorShell` takes optional `children` for main content.
 
+- 08-editor-workspace-shell: route renamed `/editor/[projectId]` -> `/editor/[roomId]`; server component redirects signed-out users to `/sign-in` and renders `components/editor/access-denied.tsx` (lock icon, message, link to `/editor`) for missing or unauthorized projects. `lib/project-access.ts` holds `getCurrentIdentity` (userId + verified primary email) and `getProjectIfAccessible` (owner or collaborator); replaces `getAccessibleProject` in `project-data.ts`. `EditorShell` takes optional `workspace` ({id, name}): navbar shows project name, Share button (no behavior) and AI sidebar toggle; `ProjectSidebar` highlights the current room (`currentProjectId`); `WorkspaceCanvas` placeholder (dark bg, centered message) fills remaining space; right AI sidebar placeholder (hidden below `md`). Collaborator match now uses the primary verified email only (was all verified emails).
+
+- 09-share-dialog: `components/editor/share-dialog.tsx` opened from the navbar Share button (wired in `EditorShell`); owners invite/remove by email and see the list, collaborators see a read-only list; Copy link shows `Copied!` for 2s. `app/api/projects/[projectId]/collaborators/route.ts` (GET list, POST invite, DELETE remove via JSON `{email}`); invite/remove are owner-only server-side (401/403/404, 400 invalid email, 409 duplicate). `lib/project-collaborators.ts`: `resolveProjectRole` and `listCollaborators`, which enriches emails with Clerk name/avatar via Backend API (`getUserList`), falling back to email only. Emails stored lowercased; no local user table.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Editor canvas inside the `/editor/[projectId]` placeholder workspace (currently shows the project name only).
+- Real canvas, Liveblocks, and AI chat inside the `/editor/[roomId]` workspace shell.
 
 ## Open Questions
 

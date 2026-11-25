@@ -12,6 +12,9 @@ import { cn } from "@/lib/utils";
 interface ProjectSidebarProps {
   isOpen: boolean;
   onClose?: () => void;
+  currentProjectId?: string;
+  /** Render as an in-flow floating panel (workspace) instead of a fixed overlay. */
+  docked?: boolean;
   onNewProject?: () => void;
   ownedProjects: Project[];
   sharedProjects: Project[];
@@ -35,23 +38,43 @@ function EmptyState({ icon: Icon, message }: EmptyStateProps) {
 
 interface ProjectListProps {
   projects: Project[];
+  currentProjectId?: string;
   onRename: (project: Project) => void;
   onDelete: (project: Project) => void;
 }
 
-function ProjectList({ projects, onRename, onDelete }: ProjectListProps) {
+function ProjectList({
+  projects,
+  currentProjectId,
+  onRename,
+  onDelete,
+}: ProjectListProps) {
   return (
     <ul className="flex flex-col gap-1">
       {projects.map((project) => (
         <li
           key={project.id}
-          className="group flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm text-foreground hover:bg-muted"
+          className={cn(
+            "group flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm text-foreground hover:bg-muted/60",
+            project.id === currentProjectId &&
+              "border border-brand/30 bg-brand/10 font-medium",
+          )}
         >
           <Link
             href={`/editor/${project.id}`}
-            className="min-w-0 flex-1 truncate"
+            aria-current={project.id === currentProjectId ? "page" : undefined}
+            className="flex min-w-0 flex-1 items-center gap-3"
           >
-            {project.name}
+            <span
+              aria-hidden="true"
+              className={cn(
+                "h-1.5 w-1.5 shrink-0 rounded-full",
+                project.id === currentProjectId
+                  ? "bg-brand"
+                  : "bg-muted-foreground/50",
+              )}
+            />
+            <span className="truncate">{project.name}</span>
           </Link>
           {project.isOwner ? (
             <span className="flex shrink-0 items-center gap-1">
@@ -82,29 +105,38 @@ function ProjectList({ projects, onRename, onDelete }: ProjectListProps) {
 export function ProjectSidebar({
   isOpen,
   onClose,
+  currentProjectId,
+  docked = false,
   onNewProject,
   ownedProjects,
   sharedProjects,
   onRenameProject,
   onDeleteProject,
 }: ProjectSidebarProps) {
+  if (docked && !isOpen) return null;
+
   return (
     <>
       {/* Mobile backdrop scrim: tap outside the sidebar to close it. */}
-      <div
-        aria-hidden="true"
-        onClick={onClose}
-        className={cn(
-          "fixed inset-x-0 top-14 bottom-0 z-20 bg-black/50 transition-opacity duration-200 md:hidden",
-          isOpen ? "opacity-100" : "pointer-events-none opacity-0",
-        )}
-      />
+      {docked ? null : (
+        <div
+          aria-hidden="true"
+          onClick={onClose}
+          className={cn(
+            "fixed inset-x-0 top-14 bottom-0 z-20 bg-black/50 transition-opacity duration-200 md:hidden",
+            isOpen ? "opacity-100" : "pointer-events-none opacity-0",
+          )}
+        />
+      )}
       <aside
         aria-hidden={!isOpen}
         inert={!isOpen}
         className={cn(
-          "fixed top-14 bottom-0 left-0 z-30 flex w-80 flex-col border-r border-border bg-background/90 backdrop-blur-md transition-transform duration-200 ease-out",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          "flex w-80 flex-col bg-background/90 backdrop-blur-md",
+          docked
+            ? "absolute inset-y-0 left-0 z-30 rounded-2xl border border-border md:static md:shrink-0"
+            : "fixed top-16 bottom-2 left-2 z-30 rounded-2xl border border-border shadow-2xl transition-transform duration-200 ease-out",
+          !docked && (isOpen ? "translate-x-0" : "-translate-x-[110%]"),
         )}
       >
         <div className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
@@ -128,6 +160,7 @@ export function ProjectSidebar({
             {ownedProjects.length > 0 ? (
               <ProjectList
                 projects={ownedProjects}
+                currentProjectId={currentProjectId}
                 onRename={onRenameProject}
                 onDelete={onDeleteProject}
               />
@@ -139,6 +172,7 @@ export function ProjectSidebar({
             {sharedProjects.length > 0 ? (
               <ProjectList
                 projects={sharedProjects}
+                currentProjectId={currentProjectId}
                 onRename={onRenameProject}
                 onDelete={onDeleteProject}
               />
