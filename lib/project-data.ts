@@ -1,30 +1,21 @@
 import "server-only";
 
-import { auth, currentUser, type User } from "@clerk/nextjs/server";
-
+import { getCurrentIdentity } from "@/lib/project-access";
 import { prisma } from "@/lib/prisma";
 import type { Project } from "@/lib/projects";
 
 /**
- * Only verified addresses may match collaborator records: Clerk lists a newly
- * added address before verification completes, so unverified ones are untrusted.
+ * Owned and shared projects for the signed-in user. Shared projects match the
+ * verified primary email only, the same rule as workspace admission
+ * (`getProjectIfAccessible`), so listing and access always agree.
  */
-function getVerifiedEmails(user: User | null): string[] {
-  return (user?.emailAddresses ?? [])
-    .filter((e) => e.verification?.status === "verified")
-    .map((e) => e.emailAddress);
-}
-
-/** Owned and shared projects for the signed-in user. */
 export async function getProjectsForCurrentUser(): Promise<{
   owned: Project[];
   shared: Project[];
 }> {
-  const { userId } = await auth();
-  if (!userId) return { owned: [], shared: [] };
-
-  const user = await currentUser();
-  const emails = getVerifiedEmails(user);
+  const identity = await getCurrentIdentity();
+  if (!identity) return { owned: [], shared: [] };
+  const { userId, email } = identity;
 
   const [owned, shared] = await Promise.all([
     prisma.project.findMany({
@@ -32,52 +23,22 @@ export async function getProjectsForCurrentUser(): Promise<{
       orderBy: { createdAt: "desc" },
       select: { id: true, name: true },
     }),
-    emails.length === 0
-      ? Promise.resolve([])
-      : prisma.project.findMany({
+    email
+      ? prisma.project.findMany({
           where: {
             ownerId: { not: userId },
             collaborators: {
-              some: {
-                OR: emails.map((email) => ({
-                  email: { equals: email, mode: "insensitive" as const },
-                })),
-              },
+              some: { email: { equals: email, mode: "insensitive" as const } },
             },
           },
           orderBy: { createdAt: "desc" },
           select: { id: true, name: true },
-        }),
+        })
+      : Promise.resolve([]),
   ]);
 
   return {
     owned: owned.map((p) => ({ ...p, isOwner: true })),
     shared: shared.map((p) => ({ ...p, isOwner: false })),
   };
-}
-
-/** The project if the current user owns it or is a collaborator; otherwise null. */
-export async function getAccessibleProject(
-  projectId: string,
-): Promise<{ id: string; name: string } | null> {
-  const { userId } = await auth();
-  if (!userId) return null;
-
-  const user = await currentUser();
-  const emails = getVerifiedEmails(user);
-
-  return prisma.project.findFirst({
-    where: {
-      id: projectId,
-      OR: [
-        { ownerId: userId },
-        ...emails.map((email) => ({
-          collaborators: {
-            some: { email: { equals: email, mode: "insensitive" as const } },
-          },
-        })),
-      ],
-    },
-    select: { id: true, name: true },
-  });
 }

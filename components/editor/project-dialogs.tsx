@@ -6,6 +6,7 @@ import { AppDialog } from "@/components/editor/app-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useProjectActions } from "@/hooks/use-project-actions";
+import { blackButton, brandButton, brandInput } from "@/components/editor/editor-styles";
 
 type ProjectDialogsProps = ReturnType<typeof useProjectActions>;
 
@@ -33,7 +34,8 @@ export function ProjectDialogs({
   const cancel = (
     <Button
       type="button"
-      variant="dark"
+      variant="outline"
+      className={blackButton}
       data-cancel
       onClick={close}
       disabled={isLoading}
@@ -55,6 +57,7 @@ export function ProjectDialogs({
               type="submit"
               data-confirm
               form="create-project-form"
+              className={brandButton}
               disabled={!canSubmit}
             >
               {isLoading ? "Creating…" : "Create"}
@@ -74,6 +77,7 @@ export function ProjectDialogs({
             onChange={(e) => setName(e.target.value)}
             placeholder="Project name"
             aria-label="Project name"
+            className={brandInput}
           />
           <p className="text-xs text-muted-foreground">
             Room ID: <span className="font-mono">{roomId || "—"}</span>
@@ -104,6 +108,7 @@ export function ProjectDialogs({
               type="submit"
               data-confirm
               form="rename-project-form"
+              className={brandButton}
               disabled={!canSubmit}
             >
               {isLoading ? "Renaming…" : "Rename"}
@@ -120,6 +125,7 @@ export function ProjectDialogs({
             placeholder="Project name"
             aria-label="Project name"
             aria-invalid={error ? true : undefined}
+            className={brandInput}
           />
           {error ? (
             <p role="alert" className="mt-2 text-xs text-destructive">
