@@ -1,32 +1,9 @@
 export interface Project {
   id: string;
   name: string;
-  slug: string;
   /** True when the current user owns the project; false for shared/collaborator projects. */
   isOwner: boolean;
 }
-
-/** Mock data only — replaced once the API and persistence exist. */
-export const MOCK_PROJECTS: Project[] = [
-  {
-    id: "p1",
-    name: "Payments Platform",
-    slug: "payments-platform",
-    isOwner: true,
-  },
-  {
-    id: "p2",
-    name: "Realtime Chat Backend",
-    slug: "realtime-chat-backend",
-    isOwner: true,
-  },
-  {
-    id: "p3",
-    name: "Analytics Pipeline",
-    slug: "analytics-pipeline",
-    isOwner: false,
-  },
-];
 
 export function slugify(name: string): string {
   return name
@@ -41,4 +18,15 @@ export const FALLBACK_SLUG = "project";
 /** Slug for a project name; never empty for a non-blank name (e.g. Unicode-only names). */
 export function toSlug(name: string): string {
   return name.trim() ? slugify(name) || FALLBACK_SLUG : "";
+}
+
+/** Short random suffix that keeps room IDs unique across same-named projects. */
+export function generateSuffix(length = 6): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  return Array.from(bytes, (b) => (b % 36).toString(36)).join("");
+}
+
+/** Project ID and Liveblocks room ID: slugified name + unique suffix. */
+export function toRoomId(name: string, suffix: string): string {
+  return `${toSlug(name) || FALLBACK_SLUG}-${suffix}`;
 }
