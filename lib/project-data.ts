@@ -1,9 +1,19 @@
 import "server-only";
 
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser, type User } from "@clerk/nextjs/server";
 
 import { prisma } from "@/lib/prisma";
 import type { Project } from "@/lib/projects";
+
+/**
+ * Only verified addresses may match collaborator records: Clerk lists a newly
+ * added address before verification completes, so unverified ones are untrusted.
+ */
+function getVerifiedEmails(user: User | null): string[] {
+  return (user?.emailAddresses ?? [])
+    .filter((e) => e.verification?.status === "verified")
+    .map((e) => e.emailAddress);
+}
 
 /** Owned and shared projects for the signed-in user. */
 export async function getProjectsForCurrentUser(): Promise<{
@@ -14,7 +24,7 @@ export async function getProjectsForCurrentUser(): Promise<{
   if (!userId) return { owned: [], shared: [] };
 
   const user = await currentUser();
-  const emails = (user?.emailAddresses ?? []).map((e) => e.emailAddress);
+  const emails = getVerifiedEmails(user);
 
   const [owned, shared] = await Promise.all([
     prisma.project.findMany({
@@ -54,9 +64,7 @@ export async function getAccessibleProject(
   if (!userId) return null;
 
   const user = await currentUser();
-  const emails = (user?.emailAddresses ?? [])
-    .filter((e) => e.verification?.status === "verified")
-    .map((e) => e.emailAddress);
+  const emails = getVerifiedEmails(user);
 
   return prisma.project.findFirst({
     where: {
