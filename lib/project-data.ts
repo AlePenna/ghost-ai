@@ -54,7 +54,9 @@ export async function getAccessibleProject(
   if (!userId) return null;
 
   const user = await currentUser();
-  const emails = (user?.emailAddresses ?? []).map((e) => e.emailAddress);
+  const emails = (user?.emailAddresses ?? [])
+    .filter((e) => e.verification?.status === "verified")
+    .map((e) => e.emailAddress);
 
   return prisma.project.findFirst({
     where: {
