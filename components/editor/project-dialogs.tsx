@@ -5,7 +5,7 @@ import type { FormEvent } from "react";
 import { AppDialog } from "@/components/editor/app-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { useProjectActions } from "@/hooks/use-project-actions";
+import { useProjectActions } from "@/hooks/use-project-actions";
 
 type ProjectDialogsProps = ReturnType<typeof useProjectActions>;
 
@@ -151,7 +151,13 @@ export function ProjectDialogs({
             {cancel}
           </>
         }
-      />
+      >
+        {error ? (
+          <p role="alert" className="text-xs text-destructive">
+            {error}
+          </p>
+        ) : null}
+      </AppDialog>
     </>
   );
 }

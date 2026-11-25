@@ -60,6 +60,7 @@ export function useProjectActions() {
   }
 
   function openDelete(project: Project) {
+    setName("");
     setApiError(null);
     setDialog({ type: "delete", project });
   }

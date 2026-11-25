@@ -27,7 +27,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - 06-project-apis: `app/api/projects/route.ts` (GET list owned, POST create; name defaults to `Untitled Project`, ID via schema `cuid()`), `app/api/projects/[projectId]/route.ts` (PATCH rename, DELETE; owner-only). 401 unauthenticated, 403 non-owner, 404 missing project, 400 empty rename. `proxy.ts` skips `auth.protect()` for `/api/*` so handlers return 401 JSON instead of Clerk's redirect/404. Backend only.
 
-- 07-wire-editor-home: `/editor` is a server component; `lib/project-data.ts` (`getProjectsForCurrentUser`: owned by Clerk ID, shared via collaborator email) feeds `EditorShell` (client) inside `<Suspense>`. `hooks/use-project-actions.ts` replaces the mock hook: create (short suffix + slug = room ID = project ID, `POST /api/projects`, push `/editor/[id]`), rename (`PATCH`, refresh), delete (`DELETE`, redirect to `/editor` if active workspace else refresh); API errors shown in dialogs. Create dialog previews Room ID. `POST /api/projects` now accepts an optional `id` (validated, 409 on duplicate) so project ID matches the room ID. Mock data removed from `lib/projects.ts`; `Project.slug` dropped. Build passes.
+- 07-wire-editor-home: `/editor` is a server component; `lib/project-data.ts` (`getProjectsForCurrentUser`: owned by Clerk ID, shared via collaborator email) feeds `EditorShell` (client) inside `<Suspense>`. `hooks/use-project-actions.ts` replaces the mock hook: create (short suffix + slug = room ID = project ID, `POST /api/projects`, push `/editor/[id]`), rename (`PATCH`, refresh), delete (`DELETE`, redirect to `/editor` if active workspace else refresh); API errors shown in dialogs. Create dialog previews Room ID. `POST /api/projects` now accepts an optional `id` (validated, 409 on duplicate) so project ID matches the room ID. Mock data removed from `lib/projects.ts`; `Project.slug` dropped. Build passes. Added placeholder `/editor/[projectId]` (owner/collaborator access check via `getAccessibleProject`, else 404) so create navigation lands on a real route; `EditorShell` takes optional `children` for main content.
 
 ## In Progress
 
@@ -35,7 +35,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Workspace route `/editor/[projectId]` (create navigates there; it does not exist yet), then editor canvas.
+- Editor canvas inside the `/editor/[projectId]` placeholder workspace (currently shows the project name only).
 
 ## Open Questions
 

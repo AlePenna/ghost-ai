@@ -45,3 +45,29 @@ export async function getProjectsForCurrentUser(): Promise<{
     shared: shared.map((p) => ({ ...p, isOwner: false })),
   };
 }
+
+/** The project if the current user owns it or is a collaborator; otherwise null. */
+export async function getAccessibleProject(
+  projectId: string,
+): Promise<{ id: string; name: string } | null> {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  const user = await currentUser();
+  const emails = (user?.emailAddresses ?? []).map((e) => e.emailAddress);
+
+  return prisma.project.findFirst({
+    where: {
+      id: projectId,
+      OR: [
+        { ownerId: userId },
+        ...emails.map((email) => ({
+          collaborators: {
+            some: { email: { equals: email, mode: "insensitive" as const } },
+          },
+        })),
+      ],
+    },
+    select: { id: true, name: true },
+  });
+}

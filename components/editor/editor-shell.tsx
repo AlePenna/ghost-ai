@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { EditorHome } from "@/components/editor/editor-home";
 import { EditorNavbar } from "@/components/editor/editor-navbar";
@@ -12,9 +12,15 @@ import type { Project } from "@/lib/projects";
 interface EditorShellProps {
   ownedProjects: Project[];
   sharedProjects: Project[];
+  /** Main content; defaults to the editor home prompt. */
+  children?: ReactNode;
 }
 
-export function EditorShell({ ownedProjects, sharedProjects }: EditorShellProps) {
+export function EditorShell({
+  ownedProjects,
+  sharedProjects,
+  children,
+}: EditorShellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const actions = useProjectActions();
 
@@ -33,7 +39,7 @@ export function EditorShell({ ownedProjects, sharedProjects }: EditorShellProps)
         onRenameProject={actions.openRename}
         onDeleteProject={actions.openDelete}
       />
-      <EditorHome onNewProject={actions.openCreate} />
+      {children ?? <EditorHome onNewProject={actions.openCreate} />}
       <ProjectDialogs {...actions} />
     </div>
   );

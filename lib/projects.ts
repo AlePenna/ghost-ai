@@ -27,6 +27,12 @@ export function generateSuffix(length = 6): string {
 }
 
 /** Project ID and Liveblocks room ID: slugified name + unique suffix. */
+export const MAX_ROOM_ID_LENGTH = 100;
+
 export function toRoomId(name: string, suffix: string): string {
-  return `${toSlug(name) || FALLBACK_SLUG}-${suffix}`;
+  const maxSlug = MAX_ROOM_ID_LENGTH - suffix.length - 1;
+  const slug = (toSlug(name) || FALLBACK_SLUG)
+    .slice(0, maxSlug)
+    .replace(/-+$/, "");
+  return `${slug || FALLBACK_SLUG}-${suffix}`;
 }
