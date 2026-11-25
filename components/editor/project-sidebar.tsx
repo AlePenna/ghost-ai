@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Project } from "@/lib/projects";
 import { cn } from "@/lib/utils";
+import { brandButton, brandGhostButton } from "@/components/editor/editor-styles";
 
 interface ProjectSidebarProps {
   isOpen: boolean;
@@ -81,6 +82,7 @@ function ProjectList({
               <Button
                 variant="ghost"
                 size="icon-sm"
+                className={brandGhostButton}
                 onClick={() => onRename(project)}
                 aria-label={`Rename ${project.name}`}
               >
@@ -89,6 +91,7 @@ function ProjectList({
               <Button
                 variant="ghost"
                 size="icon-sm"
+                className={brandGhostButton}
                 onClick={() => onDelete(project)}
                 aria-label={`Delete ${project.name}`}
               >
@@ -144,6 +147,7 @@ export function ProjectSidebar({
           <Button
             variant="ghost"
             size="icon-sm"
+            className={brandGhostButton}
             onClick={onClose}
             aria-label="Close sidebar"
           >
@@ -183,7 +187,10 @@ export function ProjectSidebar({
         </Tabs>
 
         <div className="shrink-0 border-t border-border p-4">
-          <Button className="w-full" onClick={onNewProject}>
+          <Button
+            className={cn("w-full", brandButton)}
+            onClick={onNewProject}
+          >
             <Plus className="h-4 w-4" />
             New Project
           </Button>

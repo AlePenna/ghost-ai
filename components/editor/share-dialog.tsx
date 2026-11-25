@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { AppDialog } from "@/components/editor/app-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { brandButton, brandGhostButton, brandInput } from "@/components/editor/editor-styles";
 
 interface Collaborator {
   email: string;
@@ -150,8 +151,13 @@ export function ShareDialog({ open, onOpenChange, projectId }: ShareDialogProps)
             placeholder="name@example.com"
             aria-label="Collaborator email"
             disabled={isBusy}
+            className={brandInput}
           />
-          <Button type="submit" disabled={isBusy || !email.trim()}>
+          <Button
+            type="submit"
+            className={brandButton}
+            disabled={isBusy || !email.trim()}
+          >
             Invite
           </Button>
         </form>
@@ -207,6 +213,7 @@ export function ShareDialog({ open, onOpenChange, projectId }: ShareDialogProps)
                   <Button
                     variant="ghost"
                     size="icon"
+                    className={brandGhostButton}
                     disabled={isBusy}
                     onClick={() => mutate("DELETE", c.email)}
                     aria-label={`Remove ${c.email}`}

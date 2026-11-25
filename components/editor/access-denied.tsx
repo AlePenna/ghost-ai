@@ -2,6 +2,7 @@ import { Lock } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { brandButton } from "@/components/editor/editor-styles";
 
 export function AccessDenied() {
   return (
@@ -13,7 +14,11 @@ export function AccessDenied() {
           This project doesn&apos;t exist or you don&apos;t have access to it.
         </p>
       </div>
-      <Button render={<Link href="/editor" />} nativeButton={false}>
+      <Button
+        className={brandButton}
+        render={<Link href="/editor" />}
+        nativeButton={false}
+      >
         Back to editor
       </Button>
     </main>
