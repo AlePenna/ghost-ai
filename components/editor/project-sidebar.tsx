@@ -2,6 +2,7 @@
 
 import { FolderOpen, Pencil, Plus, Trash2, Users, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -46,7 +47,12 @@ function ProjectList({ projects, onRename, onDelete }: ProjectListProps) {
           key={project.id}
           className="group flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm text-foreground hover:bg-muted"
         >
-          <span className="truncate">{project.name}</span>
+          <Link
+            href={`/editor/${project.id}`}
+            className="min-w-0 flex-1 truncate"
+          >
+            {project.name}
+          </Link>
           {project.isOwner ? (
             <span className="flex shrink-0 items-center gap-1">
               <Button

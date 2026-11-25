@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- 05-prisma: Prisma schema and data layer
+- 07-wire-editor-home: editor home wired to project APIs
 
 ## Current Goal
 
-- Implement `context/feature-specs/05-prisma.md`. Done; migration applied, build passes.
+- Implement `context/feature-specs/07-wire-editor-home.md`. Done; build passes.
 
 ## Completed
 
@@ -25,13 +25,17 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - 05-prisma: `prisma/models/project.prisma` (`Project`, `ProjectCollaborator`, `ProjectStatus` enum; indexes and cascade per spec); `lib/prisma.ts` cached singleton (Accelerate when `DATABASE_URL` starts with `prisma+postgres://`, else `@prisma/adapter-pg`; cached on `globalThis` outside production); `init` migration applied; client generated to `app/generated/prisma`. Added `@prisma/extension-accelerate` (not preinstalled). Build + tsc pass.
 
+- 06-project-apis: `app/api/projects/route.ts` (GET list owned, POST create; name defaults to `Untitled Project`, ID via schema `cuid()`), `app/api/projects/[projectId]/route.ts` (PATCH rename, DELETE; owner-only). 401 unauthenticated, 403 non-owner, 404 missing project, 400 empty rename. `proxy.ts` skips `auth.protect()` for `/api/*` so handlers return 401 JSON instead of Clerk's redirect/404. Backend only.
+
+- 07-wire-editor-home: `/editor` is a server component; `lib/project-data.ts` (`getProjectsForCurrentUser`: owned by Clerk ID, shared via collaborator email) feeds `EditorShell` (client) inside `<Suspense>`. `hooks/use-project-actions.ts` replaces the mock hook: create (short suffix + slug = room ID = project ID, `POST /api/projects`, push `/editor/[id]`), rename (`PATCH`, refresh), delete (`DELETE`, redirect to `/editor` if active workspace else refresh); API errors shown in dialogs. Create dialog previews Room ID. `POST /api/projects` now accepts an optional `id` (validated, 409 on duplicate) so project ID matches the room ID. Mock data removed from `lib/projects.ts`; `Project.slug` dropped. Build passes. Added placeholder `/editor/[projectId]` (owner/collaborator access check via `getAccessibleProject`, else 404) so create navigation lands on a real route; `EditorShell` takes optional `children` for main content.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Editor canvas and projects (next feature spec).
+- Editor canvas inside the `/editor/[projectId]` placeholder workspace (currently shows the project name only).
 
 ## Open Questions
 

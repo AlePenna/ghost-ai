@@ -5,15 +5,15 @@ import type { FormEvent } from "react";
 import { AppDialog } from "@/components/editor/app-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { useProjectDialogs } from "@/hooks/use-project-dialogs";
+import { useProjectActions } from "@/hooks/use-project-actions";
 
-type ProjectDialogsProps = ReturnType<typeof useProjectDialogs>;
+type ProjectDialogsProps = ReturnType<typeof useProjectActions>;
 
 export function ProjectDialogs({
   dialog,
   name,
   setName,
-  slug,
+  roomId,
   usesFallbackSlug,
   error,
   canSubmit,
@@ -76,7 +76,7 @@ export function ProjectDialogs({
             aria-label="Project name"
           />
           <p className="text-xs text-muted-foreground">
-            Slug: <span className="font-mono">{slug || "—"}</span>
+            Room ID: <span className="font-mono">{roomId || "—"}</span>
             {usesFallbackSlug
               ? " (default — name has no Latin letters or digits)"
               : null}
@@ -151,7 +151,13 @@ export function ProjectDialogs({
             {cancel}
           </>
         }
-      />
+      >
+        {error ? (
+          <p role="alert" className="text-xs text-destructive">
+            {error}
+          </p>
+        ) : null}
+      </AppDialog>
     </>
   );
 }
