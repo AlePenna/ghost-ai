@@ -181,3 +181,32 @@ After documenting all issues fix all of the above so that:
 - Drag and drop is unchanged: the drop target is the full-size canvas wrapper,
   so shapes still drop at the cursor via `screenToFlowPosition`. Dropping onto
   an open sidebar does nothing because the sidebar sits above the canvas.
+
+## 4: Liveblock blocks issues
+
+**Status:** Solved
+
+Cannot link blocks. I can move them around and resize them but not link them.
+
+### Root cause
+
+`canvasNode` rendered no React Flow `<Handle>` elements. React Flow only starts
+a connection from a handle, so there was nothing to drag from, and `onConnect`
+(already wired to Liveblocks) never fired. Connection handles and the
+`canvasEdge` renderer had been left for a later unit.
+
+### Solution
+
+- [`components/editor/canvas-node.tsx`](components/editor/canvas-node.tsx):
+  a `source` handle on each side (top/right/bottom/left, id = side). With
+  the canvas's existing `ConnectionMode.Loose`, any handle can start or end an
+  edge. Per `ui-context.md` they are small white circles, transparent until the
+  node is hovered (`group-hover`). They still accept drops while transparent.
+- [`components/editor/canvas-edge.tsx`](components/editor/canvas-edge.tsx)
+  (new): `canvasEdge` renderer, a smooth-step path (`getSmoothStepPath`), 1.25px, stroke `EDGE_COLOR`
+  (`#f8fafc`, in `types/canvas.ts`), brand accent when selected.
+- [`components/editor/collaborative-canvas.tsx`](components/editor/collaborative-canvas.tsx):
+  registers `edgeTypes` and passes `defaultEdgeOptions`
+  (`type: canvasEdge`, closed-arrow `markerEnd`). React Flow merges these into
+  the connection before `onConnect`, so Liveblocks stores the edge with its
+  type and arrow, and every collaborator sees it.
