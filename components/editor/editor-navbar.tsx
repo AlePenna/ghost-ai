@@ -5,6 +5,7 @@ import { PanelLeftClose, PanelLeftOpen, Share2, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { brandButton, brandGhostButton } from "@/components/editor/editor-styles";
+import { useIsHydrated } from "@/hooks/use-is-hydrated";
 import { cn } from "@/lib/utils";
 
 interface EditorNavbarProps {
@@ -26,6 +27,7 @@ export function EditorNavbar({
   onShare,
 }: EditorNavbarProps) {
   const ToggleIcon = isSidebarOpen ? PanelLeftClose : PanelLeftOpen;
+  const isHydrated = useIsHydrated();
 
   return (
     <header className="relative z-40 grid h-14 shrink-0 grid-cols-[1fr_auto_1fr] items-center border-b border-border bg-background px-3">
@@ -71,7 +73,10 @@ export function EditorNavbar({
             </Button>
           </>
         ) : null}
-        <UserButton />
+        {/* Fixed-size slot: avoids layout shift while the Clerk button mounts. */}
+        <div className="flex h-7 w-7 items-center justify-center">
+          {isHydrated ? <UserButton /> : null}
+        </div>
       </div>
     </header>
   );

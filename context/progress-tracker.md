@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- 09-share-dialog: Share dialog in the workspace
+- 12-shape-panel: Drag-and-drop shape creation
 
 ## Current Goal
 
-- Implement `context/feature-specs/09-share-dialog.md`. Done; build, tsc, eslint pass.
+- Implement `context/feature-specs/12-shape-panel.md`. Done; build, tsc, eslint pass.
 
 ## Completed
 
@@ -35,13 +35,23 @@ Update this file whenever the current phase, active feature, or implementation s
 - Foundation styling review follow-up: restored default/ghost Button and Input/Dialog foundation styles, removed the `dark` button variant, and moved brand and editor-dialog overrides into `components/editor/editor-styles.ts` (shared class constants, including `dark:` overrides since the app is always dark) used by app-level editor components.
 - Review follow-ups: shared-project listing (`getProjectsForCurrentUser`) now uses `getCurrentIdentity` and matches the verified primary email only, same as workspace admission; navbar AI toggle hidden below `md` (AI panel is desktop-only); share dialog resets loading/error on every open via render-time prop tracking instead of `onOpenChange`; `listCollaborators` queries Clerk in chunks of 100 emails (parallel) so profile enrichment isn't truncated past 100 collaborators.
 
+- 10-liveblocks-setup: `liveblocks.config.ts` augments the global `Liveblocks` types (Presence: `cursor` `{x,y} | null` + `isThinking`; UserMeta: `id` + `info` `{name, avatar, color}`). `lib/liveblocks.ts`: `getLiveblocks()` lazily creates a `@liveblocks/node` client cached on `globalThis` (throws if `LIVEBLOCKS_SECRET_KEY` is unset, so builds don't need it); `getUserColor()` maps a user ID to a fixed 12-color palette via FNV-1a. `POST /api/liveblocks-auth` reads `{ room }` (room ID = project ID; 400 if missing), requires Clerk auth (401), checks access with `getProjectIfAccessible` (403 for missing or inaccessible, so existence isn't leaked), `getOrCreateRoom` with `defaultAccesses: []` (private room; access only via token), then issues an access-token session with `*:write` on that room and userInfo name (full name, username, email, then `Anonymous`), avatar (Clerk image URL), and color. Installed `@liveblocks/node@^3.25.2` (it was not preinstalled, despite the spec).
+
+- 11-base-canvas: `/editor/[roomId]` stays a server component and passes `roomId={project.id}` to `WorkspaceCanvas` (now a client component): `LiveblocksProvider` (`authEndpoint: /api/liveblocks-auth`) → `RoomProvider` (initial presence `{ cursor: null, isThinking: false }`; `isThinking` is required by the Presence type) → `CanvasErrorBoundary` (class boundary for thrown errors) → `RoomConnection` (`useErrorListener` swaps to the error state on `ROOM_CONNECTION_ERROR`, e.g. 403 from the auth route) → `ClientSideSuspense` ("Connecting to canvas…" spinner) → `CollaborativeCanvas`. `CollaborativeCanvas` uses `useLiveblocksFlow<CanvasNode, CanvasEdge>({ suspense: true })` with empty initial nodes/edges and passes nodes, edges, `onNodesChange`/`onEdgesChange`/`onConnect`/`onDelete` into `ReactFlow` (`ConnectionMode.Loose`, `fitView`, dark color mode, `bg-base`), with `MiniMap` and a dots `Background`, colored with CSS tokens. `types/canvas.ts`: `NODE_COLORS` (8 fill/text pairs from ui-context), `NODE_SHAPES` (6), defaults, `CANVAS_NODE_TYPE = "canvasNode"`, `CANVAS_EDGE_TYPE = "canvasEdge"`, `CanvasNodeData` (`label`, `color`, `shape`), `CanvasNode`, `CanvasEdge`. No controls, custom node/edge renderers, persistence, or AI. `CursorPosition` in `liveblocks.config.ts` changed from `interface` to a type alias (Liveblocks rejects interfaces in Presence as non-JSON).
+
+- 12-shape-panel: `components/editor/shape-panel.tsx` is a floating pill toolbar (bottom-center) with draggable Lucide icon buttons for the 6 `NODE_SHAPES`. Drag sets `application/x-ghost-shape` to JSON `{ shape, size }`. `lib/shape-drag.ts` handles serialize/parse, and parse validates the shape and positive finite sizes. `types/canvas.ts` adds `NodeSize`, `DEFAULT_SHAPE_SIZES` (rectangle 160x80, diamond 180x120, circle 100x100, pill 160x60, cylinder 120x100, hexagon 160x90) and `isNodeShape`. `CollaborativeCanvas` now wraps a `ReactFlowProvider`. Its wrapper div handles `dragover` (only for the shape MIME) and `drop`: `screenToFlowPosition`, node centered on the cursor, ID `${shape}-${Date.now()}-${counter}` (per-component ref counter), type `canvasNode`, `width`/`height` from the payload, data `{ label: "", color: DEFAULT_NODE_COLOR, shape }`, added via `onNodesChange([{ type: "add" }])` so it syncs through Liveblocks. `components/editor/canvas-node.tsx` draws every shape as a bordered rounded rectangle with a centered label (fill/text from `data.color`, brand border when selected), registered as `nodeTypes.canvasNode`. No handles or shape-specific visuals yet.
+
+- Fix (issues.md #2): `canvas-node.tsx` now renders per-shape visuals from `data.shape`: rectangle/circle/pill via CSS radius, diamond/hexagon/cylinder via an inline stretched SVG (non-scaling 1px stroke), with label padding kept inside the shape. Handles still pending.
+
+- Fix (issues.md #3): workspace canvas is full-bleed (`absolute inset-0 bg-base`, no border/radius/padding; React Flow `Background` `bgColor` set to `--bg-base`). Project sidebar and new `components/editor/ai-sidebar.tsx` float over the canvas (absolute, `z-30`, translucent + shadow) and slide fully off-screen when closed (`translate` past the inset + `invisible` after the transition). `MiniMap` offsets by `--canvas-inset-right` while the AI panel is open. Build, tsc, eslint pass.
+
 ## In Progress
 
 - None.
 
 ## Next Up
 
-- Real canvas, Liveblocks, and AI chat inside the `/editor/[roomId]` workspace shell.
+- `canvasNode` connection handles, custom `canvasEdge` renderer (smooth-step edges), canvas controls, live cursors, and AI chat inside the `/editor/[roomId]` workspace.
 
 ## Open Questions
 
@@ -50,6 +60,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Sign-in/up env vars were absent from `.env.local`; added Clerk-standard `NEXT_PUBLIC_CLERK_SIGN_IN_URL`/`SIGN_UP_URL` (+ fallback redirect URLs to `/editor`). Confirm Clerk dashboard matches.
 
 - Installed `prisma`/`@prisma/client` are 6.19.3 while `@prisma/adapter-pg` is 7.10.1; works today, but align versions. Accelerate branch uses the v6 API (`datasourceUrl` + `withAccelerate()`), which differs from v7 (`accelerateUrl`).
+
+- `LIVEBLOCKS_SECRET_KEY` is not in `.env.local`; add it (from the Liveblocks dashboard) before the auth route can issue tokens.
 
 ## Architecture Decisions
 
@@ -60,3 +72,5 @@ Update this file whenever the current phase, active feature, or implementation s
 - Cache Components is on: `auth()` and Clerk client components need `<Suspense>`.
 - `package.json` had `shadcn` at `^1.0.0` (broke build); restored `^4.23.0`.
 - Sidebar sits at `top-14` to clear the 56px navbar.
+- Liveblocks Presence/Storage types must be JSON-compatible: use `type` aliases, not `interface`, for objects nested in them.
+- Clerk UI components return `null` until clerk-js loads, so inside streamed Suspense trees they can hydrate-mismatch; gate them with `hooks/use-is-hydrated.ts` (see `issues.md` #1).

@@ -12,7 +12,7 @@
 - Strict mode is required throughout the project.
 - Avoid `any`; use explicit interfaces or narrowly scoped types.
 - Validate unknown external input at system boundaries before trusting it.
-- Use `interface` for object contracts.
+- Use `interface` for object contracts. Exception: objects stored in Liveblocks Presence or Storage must be `type` aliases (Liveblocks requires JSON-compatible types, which interfaces fail).
 
 ## Next.js
 

@@ -14,7 +14,7 @@ interface ProjectSidebarProps {
   isOpen: boolean;
   onClose?: () => void;
   currentProjectId?: string;
-  /** Render as an in-flow floating panel (workspace) instead of a fixed overlay. */
+  /** Float over the workspace canvas (absolute) instead of a viewport overlay. */
   docked?: boolean;
   onNewProject?: () => void;
   ownedProjects: Project[];
@@ -116,8 +116,6 @@ export function ProjectSidebar({
   onRenameProject,
   onDeleteProject,
 }: ProjectSidebarProps) {
-  if (docked && !isOpen) return null;
-
   return (
     <>
       {/* Mobile backdrop scrim: tap outside the sidebar to close it. */}
@@ -135,11 +133,12 @@ export function ProjectSidebar({
         aria-hidden={!isOpen}
         inert={!isOpen}
         className={cn(
-          "flex w-80 flex-col bg-background/90 backdrop-blur-md",
-          docked
-            ? "absolute inset-y-0 left-0 z-30 rounded-2xl border border-border md:static md:shrink-0"
-            : "fixed top-16 bottom-2 left-2 z-30 rounded-2xl border border-border shadow-2xl transition-transform duration-200 ease-out",
-          !docked && (isOpen ? "translate-x-0" : "-translate-x-[110%]"),
+          "z-30 flex w-80 flex-col rounded-2xl border border-border bg-background/90 shadow-2xl backdrop-blur-md",
+          docked ? "absolute top-3 bottom-3 left-3" : "fixed top-16 bottom-2 left-2",
+          // Slide past the left inset and the shadow, then go `invisible` once
+          // the transition ends so nothing peeks in from the edge.
+          "transition-[translate,visibility] duration-200 ease-out",
+          isOpen ? "translate-x-0" : "invisible -translate-x-[calc(100%+2rem)]",
         )}
       >
         <div className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
