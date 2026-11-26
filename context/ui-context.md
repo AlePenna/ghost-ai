@@ -66,9 +66,15 @@ Radius increases with surface depth — smaller for inner elements, larger for o
 
 Default node color: `#1F1F1F` with `#EDEDED` text.
 
+Selected nodes show a floating color toolbar just above them with one swatch per pair. Picking a swatch sets the fill and text color together. The active swatch has a ring in its text color, and hovering a swatch adds a tight glow in its text color. No free-form color picker.
+
 ### Edge Style
 
-Smooth-step path with an arrow marker. Default edge color: `#f8fafc`. Stroke width is thin — edges are visually secondary to nodes.
+Right-angle (smooth step) routing with rounded corners, round line caps and a closed arrow marker. Default edge color: `#f8fafc`. Stroke width is thin (1.25px) — edges are visually secondary to nodes. Edges are dimmed at rest and brighten on hover; selected edges use the brand accent. A wide invisible hit area makes them easy to hover and click.
+
+Edge labels sit at the path midpoint as small pill badges. Double-click an edge or its label to edit; an active (hovered or selected) edge without a label shows a faint "Double-click to add label" hint.
+
+Connection handles: small white dots with a dark border on all four sides of a node, hidden until the node is hovered.
 
 ### Node Shapes
 

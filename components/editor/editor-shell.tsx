@@ -7,6 +7,11 @@ import { EditorHome } from "@/components/editor/editor-home";
 import { EditorNavbar } from "@/components/editor/editor-navbar";
 import { ProjectDialogs } from "@/components/editor/project-dialogs";
 import { ShareDialog } from "@/components/editor/share-dialog";
+import { StarterTemplatesModal } from "@/components/editor/starter-templates-modal";
+import {
+  TemplateImportProvider,
+  useTemplateImporterRef,
+} from "@/components/editor/template-import-context";
 import { ProjectSidebar } from "@/components/editor/project-sidebar";
 import { useProjectActions } from "@/hooks/use-project-actions";
 import type { Project } from "@/lib/projects";
@@ -30,6 +35,8 @@ export function EditorShell({
   const [isOpen, setIsOpen] = useState(Boolean(workspace));
   const [isAiOpen, setIsAiOpen] = useState(true);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const templateImporterRef = useTemplateImporterRef();
   const actions = useProjectActions();
 
   return (
@@ -41,6 +48,7 @@ export function EditorShell({
         isAiSidebarOpen={isAiOpen}
         onToggleAiSidebar={workspace ? () => setIsAiOpen((o) => !o) : undefined}
         onShare={() => setIsShareOpen(true)}
+        onOpenTemplates={() => setIsTemplatesOpen(true)}
       />
       {workspace ? (
         // Full-bleed canvas; both sidebars float over it (absolute, z-30) so
@@ -48,11 +56,15 @@ export function EditorShell({
         <div
           className={cn(
             "relative min-h-0 flex-1 overflow-hidden bg-base",
-            // Lets canvas chrome (MiniMap) clear the open AI panel on desktop.
+            // Lets canvas chrome clear the open sidebars on desktop: the
+            // MiniMap the AI panel, the control bar the project sidebar.
             isAiOpen && "md:[--canvas-inset-right:21.5rem]",
+            isOpen && "md:[--canvas-inset-left:21.5rem]",
           )}
         >
-          {children}
+          <TemplateImportProvider importerRef={templateImporterRef}>
+            {children}
+          </TemplateImportProvider>
           <ProjectSidebar
             isOpen={isOpen}
             docked
@@ -81,11 +93,18 @@ export function EditorShell({
         </>
       )}
       {workspace ? (
-        <ShareDialog
-          open={isShareOpen}
-          onOpenChange={setIsShareOpen}
-          projectId={workspace.id}
-        />
+        <>
+          <ShareDialog
+            open={isShareOpen}
+            onOpenChange={setIsShareOpen}
+            projectId={workspace.id}
+          />
+          <StarterTemplatesModal
+            open={isTemplatesOpen}
+            onOpenChange={setIsTemplatesOpen}
+            onImport={(template) => templateImporterRef.current?.(template)}
+          />
+        </>
       ) : null}
       <ProjectDialogs {...actions} />
     </div>
