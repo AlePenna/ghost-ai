@@ -24,10 +24,16 @@ function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
+/** True when the event comes from inside a modal (share, templates, ...). */
+function isInsideDialog(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest('[role="dialog"]') !== null;
+}
+
 /**
  * Canvas shortcuts on `window`: `+`/`=` zoom in, `-` zoom out,
  * Cmd/Ctrl+Z undo, Cmd/Ctrl+Shift+Z or Cmd/Ctrl+Y redo.
- * Ignored while typing in inputs, textareas or editable text fields.
+ * Ignored while typing in inputs, textareas or editable text fields, and for
+ * events from inside an open dialog.
  */
 export function useKeyboardShortcuts({
   reactFlow,
@@ -36,7 +42,9 @@ export function useKeyboardShortcuts({
 }: KeyboardShortcutOptions) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (isEditableTarget(event.target)) return;
+      if (isEditableTarget(event.target) || isInsideDialog(event.target)) {
+        return;
+      }
 
       const key = event.key.toLowerCase();
       const mod = event.metaKey || event.ctrlKey;

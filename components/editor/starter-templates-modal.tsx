@@ -20,8 +20,11 @@ import {
 interface StarterTemplatesModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Called with the chosen template; the modal closes right after. */
-  onImport: (template: CanvasTemplate) => void;
+  /**
+   * Called with the chosen template. Returns false when the canvas isn't
+   * ready to import, which keeps the modal open; true closes it.
+   */
+  onImport: (template: CanvasTemplate) => boolean;
 }
 
 /** Dialog listing the starter templates as preview cards with an import action. */
@@ -31,8 +34,7 @@ export function StarterTemplatesModal({
   onImport,
 }: StarterTemplatesModalProps) {
   const handleImport = (template: CanvasTemplate) => {
-    onImport(template);
-    onOpenChange(false);
+    if (onImport(template)) onOpenChange(false);
   };
 
   return (

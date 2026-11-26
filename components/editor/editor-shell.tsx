@@ -102,7 +102,12 @@ export function EditorShell({
           <StarterTemplatesModal
             open={isTemplatesOpen}
             onOpenChange={setIsTemplatesOpen}
-            onImport={(template) => templateImporterRef.current?.(template)}
+            onImport={(template) => {
+              const importer = templateImporterRef.current;
+              if (!importer) return false;
+              importer(template);
+              return true;
+            }}
           />
         </>
       ) : null}

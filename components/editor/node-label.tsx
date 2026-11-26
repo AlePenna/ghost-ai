@@ -62,6 +62,15 @@ export function NodeLabel({ label, onChange }: NodeLabelProps) {
     }
   };
 
+  /** Keyboard equivalent of double-click on the focused label. */
+  const handleLabelKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    // Keep Enter/Space away from React Flow and the canvas shortcuts.
+    event.preventDefault();
+    event.stopPropagation();
+    setIsEditing(true);
+  };
+
   const isEmpty = label.length === 0;
   // A trailing newline collapses in the sizing copy; a zero-width space keeps
   // the extra line so the textarea grows with it.
@@ -77,6 +86,10 @@ export function NodeLabel({ label, onChange }: NodeLabelProps) {
           isEmpty ? "text-copy-muted" : ""
         }`}
         aria-hidden={isEditing}
+        role={isEditing ? undefined : "button"}
+        tabIndex={isEditing ? -1 : 0}
+        aria-label={isEditing ? undefined : `Edit label: ${label || PLACEHOLDER}`}
+        onKeyDown={isEditing ? undefined : handleLabelKeyDown}
       >
         {isEditing ? sizingText : isEmpty ? PLACEHOLDER : label}
       </span>

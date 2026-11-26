@@ -73,7 +73,7 @@ function CanvasSurface() {
       edges: { initial: [] },
     });
   const reactFlow = useReactFlow<CanvasNode, CanvasEdge>();
-  const { screenToFlowPosition, fitView } = reactFlow;
+  const { screenToFlowPosition, fitView, getNodes, getEdges } = reactFlow;
   const room = useRoom();
   const undo = useUndo();
   const redo = useRedo();
@@ -111,7 +111,9 @@ function CanvasSurface() {
   const importTemplate = useCallback(
     (template: CanvasTemplate) => {
       room.batch(() => {
-        onDelete({ nodes, edges });
+        // Read the live store, not render-captured arrays, so nothing added
+        // since the last render survives and the callback identity is stable.
+        onDelete({ nodes: getNodes(), edges: getEdges() });
         onNodesChange(
           template.nodes.map((node) => ({
             type: "add",
@@ -130,7 +132,15 @@ function CanvasSurface() {
         void fitView({ duration: ZOOM_ANIMATION_MS });
       });
     },
-    [room, nodes, edges, onDelete, onNodesChange, onEdgesChange, fitView],
+    [
+      room,
+      getNodes,
+      getEdges,
+      onDelete,
+      onNodesChange,
+      onEdgesChange,
+      fitView,
+    ],
   );
   useRegisterTemplateImporter(importTemplate);
 

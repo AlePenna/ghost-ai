@@ -186,7 +186,7 @@ After documenting all issues fix all of the above so that:
 
 **Status:** Solved
 
-Cannot link blocks. I can move the around and resize them but not link them.
+Cannot link blocks. I can move them around and resize them but not link them.
 
 ### Root cause
 
@@ -203,7 +203,7 @@ a connection from a handle, so there was nothing to drag from, and `onConnect`
   edge. Per `ui-context.md` they are small white circles, transparent until the
   node is hovered (`group-hover`). They still accept drops while transparent.
 - [`components/editor/canvas-edge.tsx`](components/editor/canvas-edge.tsx)
-  (new): `canvasEdge` renderer, a bezier curve, 1.25px, stroke `EDGE_COLOR`
+  (new): `canvasEdge` renderer, a smooth-step path (`getSmoothStepPath`), 1.25px, stroke `EDGE_COLOR`
   (`#f8fafc`, in `types/canvas.ts`), brand accent when selected.
 - [`components/editor/collaborative-canvas.tsx`](components/editor/collaborative-canvas.tsx):
   registers `edgeTypes` and passes `defaultEdgeOptions`

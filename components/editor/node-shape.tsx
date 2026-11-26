@@ -19,7 +19,14 @@ const CYLINDER_CAP = 12;
 const SVG_LABEL_PADDING: Record<SvgShape, CSSProperties> = {
   diamond: { padding: "0 25%" },
   hexagon: { padding: "0 20%" },
-  cylinder: { padding: `${CYLINDER_CAP}% 12px 0` },
+  // Vertical padding % resolves against width, so inset with `top` instead,
+  // which resolves against height and clears the top cap at any size.
+  cylinder: {
+    position: "absolute",
+    inset: `${CYLINDER_CAP}% 12px 0`,
+    width: "auto",
+    height: "auto",
+  },
 };
 
 const LABEL_CLASS =
