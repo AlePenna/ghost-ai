@@ -25,7 +25,7 @@ async function WorkspaceContent({ params }: PageProps<"/editor/[roomId]">) {
       sharedProjects={shared}
       workspace={{ id: project.id, name: project.name }}
     >
-      <WorkspaceCanvas />
+      <WorkspaceCanvas roomId={project.id} />
     </EditorShell>
   );
 }

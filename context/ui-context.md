@@ -87,7 +87,7 @@ Small white circular handles, hidden by default, revealed on node hover. Appear 
 
 ### Canvas Background
 
-React Flow `<Background>` component. Canvas sits on the base background color.
+React Flow `<Background>` dots component with `bgColor` set to `--bg-base` (React Flow's dark mode otherwise paints its own grey). Canvas sits on the base background color.
 
 ## Component Library
 
@@ -95,7 +95,7 @@ shadcn/ui on top of Tailwind. No custom design system. Components live in `compo
 
 ## Layout Patterns
 
-- Editor workspace: full-viewport layout — floating sidebar overlay on the left, center canvas, slide-over AI sidebar on the right.
+- Editor workspace: full-viewport layout. The canvas fills the whole area below the navbar (no border, radius, or padding), with the floating project sidebar overlaid on the left and the slide-over AI sidebar on the right. Sidebars never take layout width from the canvas. When closed they translate fully off-screen and become `invisible`.
 - Sidebars: floating overlay with dark semi-transparent background and subtle border.
 - Modals and dialogs: centered overlay, `rounded-3xl`, dark background with backdrop blur.
 - Navbar: top bar with dark background and bottom border.

@@ -1,8 +1,8 @@
 "use client";
 
-import { Bot, Sparkles } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
+import { AiSidebar } from "@/components/editor/ai-sidebar";
 import { EditorHome } from "@/components/editor/editor-home";
 import { EditorNavbar } from "@/components/editor/editor-navbar";
 import { ProjectDialogs } from "@/components/editor/project-dialogs";
@@ -10,6 +10,7 @@ import { ShareDialog } from "@/components/editor/share-dialog";
 import { ProjectSidebar } from "@/components/editor/project-sidebar";
 import { useProjectActions } from "@/hooks/use-project-actions";
 import type { Project } from "@/lib/projects";
+import { cn } from "@/lib/utils";
 
 interface EditorShellProps {
   ownedProjects: Project[];
@@ -42,7 +43,16 @@ export function EditorShell({
         onShare={() => setIsShareOpen(true)}
       />
       {workspace ? (
-        <div className="relative flex min-h-0 flex-1 gap-3 p-3">
+        // Full-bleed canvas; both sidebars float over it (absolute, z-30) so
+        // the dotted background runs edge-to-edge underneath them.
+        <div
+          className={cn(
+            "relative min-h-0 flex-1 overflow-hidden bg-base",
+            // Lets canvas chrome (MiniMap) clear the open AI panel on desktop.
+            isAiOpen && "md:[--canvas-inset-right:21.5rem]",
+          )}
+        >
+          {children}
           <ProjectSidebar
             isOpen={isOpen}
             docked
@@ -54,43 +64,7 @@ export function EditorShell({
             onRenameProject={actions.openRename}
             onDeleteProject={actions.openDelete}
           />
-          {children}
-          {isAiOpen ? (
-            <aside className="hidden w-80 shrink-0 flex-col rounded-2xl border border-border bg-background md:flex">
-              <div className="flex items-start justify-between border-b border-border px-5 py-4">
-                <div>
-                  <h2 className="text-sm font-medium text-foreground">
-                    AI Copilot
-                  </h2>
-                  <p className="text-xs text-muted-foreground">
-                    Placeholder panel
-                  </p>
-                </div>
-                <Sparkles className="h-4 w-4 text-brand" />
-              </div>
-              <div className="m-4 flex gap-3 rounded-2xl border border-border p-4">
-                <Bot className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
-                <div>
-                  <h3 className="text-sm font-medium text-foreground">
-                    Chat surface pending
-                  </h3>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    The toggle is wired. Messaging and generation are
-                    intentionally out of scope here.
-                  </p>
-                </div>
-              </div>
-              <div className="mx-4 mt-auto mb-4 rounded-2xl border border-dashed border-border p-4">
-                <p className="text-xs tracking-[0.2em] text-muted-foreground uppercase">
-                  Future hooks
-                </p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Prompt composer, run status, and architecture guidance will
-                  attach to this sidebar.
-                </p>
-              </div>
-            </aside>
-          ) : null}
+          <AiSidebar isOpen={isAiOpen} />
         </div>
       ) : (
         <>
